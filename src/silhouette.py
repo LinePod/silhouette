@@ -34,6 +34,16 @@ class Silhouette(object):
 
     def connect(self):
         self.dev = self.usbscan()
+
+        # detach kernel driver if possible
+        if self.dev.is_kernel_driver_active(0):
+            try:
+                self.dev.detach_kernel_driver(0)
+                print "kernel driver detached"
+            except usb.core.USBError as e:
+                msg = "Could not detach kernel driver: %s" % str(e)
+                raise SilhouetteException, msg
+
         self.dev.reset()
 
         # set the active configuration. With no arguments, the first
